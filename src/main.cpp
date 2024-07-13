@@ -1,6 +1,6 @@
 #include "DHT.h"
 #include <TFT_eSPI.h>
-#include "WiFiServer.h"
+#include "WiFiManagerConfig.h"
 
 #define DHTPIN 21
 #define DHTTYPE DHT11
@@ -14,10 +14,6 @@ DHT dht(DHTPIN, DHTTYPE);
 const int pwmFreq = 5000;
 const int pwmResolution = 8;
 const int pwmLedChannelTFT = 0;
-
-// Ganti dengan SSID dan Password WiFi Anda
-const char *ssid = "";
-const char *password = "";
 
 // Battery Voltage Pin
 #define ADC_PIN 34
@@ -46,18 +42,20 @@ void displayError(float battery_voltage);
 void setup()
 {
   Serial.begin(115200);
+  setupWiFi();
+  setupWebServer();
   dht.begin();
   tft.begin();
   tft.fillScreen(TFT_BLACK);
 
   ledcSetup(pwmLedChannelTFT, pwmFreq, pwmResolution);
   ledcAttachPin(TFT_BL, pwmLedChannelTFT);
-  setupWiFiServer(ssid, password);
+
+  // Menyiapkan captive portal dan mencoba menghubungkan ke jaringan WiFi
 }
 
 void loop(void)
 {
-  handleClientRequests();
   // MILLIS timer in place of delay
   if (millis() - start >= waitPeriod)
   {
@@ -87,7 +85,7 @@ void loop(void)
   }
 }
 
-void displayError(float battery_voltage )
+void displayError(float battery_voltage)
 {
   spr.createSprite(135, 280);
   spr.fillSprite(TFT_BLACK);
