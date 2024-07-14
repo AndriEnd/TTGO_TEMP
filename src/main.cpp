@@ -6,6 +6,8 @@
 #define DHTTYPE DHT11
 #define TFT_BL 4
 
+const int resetButtonPin = 23;
+
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
 DHT dht(DHTPIN, DHTTYPE);
@@ -14,6 +16,10 @@ DHT dht(DHTPIN, DHTTYPE);
 const int pwmFreq = 5000;
 const int pwmResolution = 8;
 const int pwmLedChannelTFT = 0;
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50;
+bool lastButtonState = HIGH;
+bool buttonState = HIGH;
 
 // Battery Voltage Pin
 #define ADC_PIN 34
@@ -47,6 +53,7 @@ void setup()
   dht.begin();
   tft.begin();
   tft.fillScreen(TFT_BLACK);
+  pinMode(resetButtonPin, INPUT_PULLUP);
 
   ledcSetup(pwmLedChannelTFT, pwmFreq, pwmResolution);
   ledcAttachPin(TFT_BL, pwmLedChannelTFT);
@@ -56,6 +63,27 @@ void setup()
 
 void loop(void)
 {
+  int reading = digitalRead(resetButtonPin);
+
+  if (reading != lastButtonState)
+  {
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay)
+  {
+    if (reading != buttonState)
+    {
+      buttonState = reading;
+
+      if (buttonState == LOW)
+      {
+        Serial.println("Tombol reset ditekan, mereset WiFi...");
+        resetWiFi(); // Mereset WiFi jika tombol ditekan
+      }
+    }
+  }
+  lastButtonState = reading;
   // MILLIS timer in place of delay
   if (millis() - start >= waitPeriod)
   {
@@ -83,6 +111,7 @@ void loop(void)
   {
     drawScreen(temp, hum, battery_voltage);
   }
+  lastButtonState = reading;
 }
 
 void displayError(float battery_voltage)
