@@ -4,7 +4,7 @@
 
 #define TFT_BL 4
 
-const int resetButtonPin = 23;
+const int resetButtonPin = 0; // button reset wifi
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
