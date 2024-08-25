@@ -3,7 +3,7 @@
 WiFiManager wifiManager;
 AsyncWebServer server(80);
 
-const int resetButtonPin = 23; // Pin untuk tombol reset (ubah sesuai dengan pin yang digunakan)
+const int resetButtonPin = 0; // Pin untuk tombol reset (ubah sesuai dengan pin yang digunakan)
 
 void setupWiFi()
 {
