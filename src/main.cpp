@@ -4,15 +4,15 @@
 #include <TFT_eSPI.h>
 #include "DisplayHelper.h"
 
-const int resetButtonPin = 0;  // Pin untuk tombol reset
+const int resetButtonPin = 0; // Pin untuk tombol reset
 
 const char *ntpServer = "pool.ntp.org";
 const long utcOffsetInSeconds = 25200; // UTC+7 untuk Jakarta
+TFT_eSPI tft = TFT_eSPI();
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, ntpServer, utcOffsetInSeconds);
 
-TFT_eSPI tft = TFT_eSPI();
 DisplayHelper displayHelper(&tft, &timeClient);
 
 unsigned long lastDebounceTime = 0;
@@ -28,6 +28,8 @@ void setup()
   setupWiFi();
   setupWebServer();
   displayHelper.init();
+  tft.begin();
+  tft.print("TEST");
 
   pinMode(resetButtonPin, INPUT_PULLUP);
 
@@ -61,16 +63,16 @@ void koneksi()
 
 void jam()
 {
-  timeClient.update();  // Perbarui waktu dari NTP
+  timeClient.update(); // Perbarui waktu dari NTP
   Serial.print("JAM : ");
-  Serial.println(timeClient.getFormattedTime());  // Perbaiki kesalahan penulisan
+  Serial.println(timeClient.getFormattedTime()); // Perbaiki kesalahan penulisan
 
-  delay(1000);  // Tunggu 1 detik sebelum mengulangi
+  delay(1000); // Tunggu 1 detik sebelum mengulangi
 }
 
 void loop(void)
 {
-  displayHelper.showTime();  // Tampilkan waktu di layar
-  jam();                     // Cetak waktu ke Serial Monitor
-  koneksi();                 // Cek tombol reset
+  displayHelper.showTime(); // Tampilkan waktu di layar
+  jam();                    // Cetak waktu ke Serial Monitor
+  koneksi();                // Cek tombol reset
 }
