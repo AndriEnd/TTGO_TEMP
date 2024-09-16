@@ -2,7 +2,6 @@
 #include "TimeHelper.h"
 #include <Wire.h>
 #include <TFT_eSPI.h>
-#include "DisplayHelper.h"
 
 const int resetButtonPin = 0; // Pin untuk tombol reset
 
@@ -12,8 +11,6 @@ TFT_eSPI tft = TFT_eSPI();
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, ntpServer, utcOffsetInSeconds);
-
-DisplayHelper displayHelper(&tft, &timeClient);
 
 unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 50;
@@ -27,7 +24,7 @@ void setup()
 
   setupWiFi();
   setupWebServer();
-  displayHelper.init();
+
   tft.begin();
   tft.print("TEST");
 
@@ -39,6 +36,10 @@ void setup()
 void koneksi()
 {
   int reading = digitalRead(resetButtonPin);
+  int32_t rssi = WiFi.RSSI();
+  Serial.print("Kekuatan sinyal (RSSI): ");
+  Serial.print(rssi);
+  Serial.println(" dBm");
 
   if (reading != lastButtonState)
   {
@@ -72,7 +73,6 @@ void jam()
 
 void loop(void)
 {
-  displayHelper.showTime(); // Tampilkan waktu di layar
-  jam();                    // Cetak waktu ke Serial Monitor
-  koneksi();                // Cek tombol reset
+  jam();     // Cetak waktu ke Serial Monitor
+  koneksi(); // Cek tombol reset
 }
